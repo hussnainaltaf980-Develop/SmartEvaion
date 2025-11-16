@@ -1,0 +1,91 @@
+<footer class="text-center mt-16 animate-fade-in-up text-text-muted">
+  <div class="inline-flex flex-col items-center justify-center p-1 animated-gradient-border rounded-2xl mb-2">
+     <div class="px-4 py-2 bg-indigo-900/90 rounded-2xl flex items-center gap-4">
+       <!-- Original company brand logo -->
+        <svg class="w-10 h-10" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="grad-main-aurora" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#8A2BE2" /> <!-- BlueViolet -->
+              <stop offset="30%" stop-color="#0057FF" /> <!-- Cobalt Accent from palette -->
+              <stop offset="70%" stop-color="var(--color-primary-accent)" />
+              <stop offset="100%" stop-color="#00F6FF" /> <!-- Cyberpunk Neon color -->
+            </linearGradient>
+            <radialGradient id="grad-core-glow">
+              <stop offset="0%" stop-color="white" stop-opacity="0.8" />
+              <stop offset="100%" stop-color="var(--color-primary-accent)" stop-opacity="0" />
+            </radialGradient>
+            <filter id="hero-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <g transform="translate(0, 5)" filter="url(#hero-glow)">
+            <!-- Outer Orbits -->
+            <ellipse cx="100" cy="60" rx="95" ry="40" stroke="url(#grad-main-aurora)" stroke-width="1" stroke-opacity="0.5" transform="rotate(15 100 60)">
+              <animateTransform attributeName="transform" type="rotate" from="15 100 60" to="375 100 60" dur="25s" repeatCount="indefinite" />
+            </ellipse>
+            <ellipse cx="100" cy="60" rx="80" ry="50" stroke="url(#grad-main-aurora)" stroke-width="1.5" stroke-opacity="0.7" transform="rotate(-25 100 60)">
+              <animateTransform attributeName="transform" type="rotate" from="-25 100 60" to="-385 100 60" dur="20s" repeatCount="indefinite" />
+            </ellipse>
+
+            <!-- 3D Vertex Shape (Multi-layered) -->
+            <g>
+              <animateTransform attributeName="transform" type="scale" attributeType="XML" from="1" to="1.05" begin="0s" dur="4s" repeatCount="indefinite" values="1;1.05;1" keyTimes="0;0.5;1" />
+              <!-- Base Layer -->
+              <path d="M100 20 L140 60 L100 100 L60 60 Z" fill="url(#grad-main-aurora)" fill-opacity="0.1" stroke="url(#grad-main-aurora)" stroke-width="2" />
+              <!-- Facet Highlights -->
+              <path d="M100 20 L60 60 L100 60 Z" fill="var(--color-primary-accent)" fill-opacity="0.6" />
+              <path d="M100 20 L140 60 L100 60 Z" fill="#0057FF" fill-opacity="0.5" />
+              <path d="M60 60 L100 100 L100 60 Z" fill="#6A00FF" fill-opacity="0.5" />
+              <path d="M140 60 L100 100 L100 60 Z" fill="var(--color-secondary-accent)" fill-opacity="0.6" />
+
+              <!-- Central glowing Core -->
+              <circle cx="100" cy="60" r="10" fill="url(#grad-core-glow)" />
+              
+              <!-- Neural Net Overlay -->
+              <g stroke="white" stroke-width="1" stroke-opacity="0.8">
+                <path d="M100 60 L80 50 M100 60 L120 50 M100 60 L80 70 M100 60 L120 70" />
+                <circle cx="80" cy="50" r="2" fill="white" />
+                <circle cx="120" cy="50" r="2" fill="white" />
+                <circle cx="80" cy="70" r="2" fill="white" />
+                <circle cx="120" cy="70" r="2" fill="white" />
+              </g>
+            </g>
+
+            <!-- Orbiting Particles -->
+            <circle cx="5" cy="60" r="3" fill="var(--color-primary-accent)">
+                <animateMotion dur="25s" repeatCount="indefinite" path="M5,60 C5,5 195,5 195,60 C195,115 5,115 5,60 Z" />
+            </circle>
+            <circle cx="120" cy="110" r="2.5" fill="white">
+                <animateMotion dur="20s" repeatCount="indefinite" path="M120,110 C20,110 20,10 120,10 C220,10 220,110 120,110 Z" />
+            </circle>
+          </g>
+        </svg>
+       <p class="text-sm text-blue-300/80 font-medium">{{ 'common.developedBy' | translate }} <span class="font-bold text-white">HussnainTechVertex Pvt Ltd.</span></p>
+     </div>
+  </div>
+  <p class="text-sm font-medium">&copy; {{ currentYear() }} {{ 'common.allRightsReserved' | translate }}.</p>
+
+  <div class="mt-4 flex items-center justify-center space-x-6">
+    <a routerLink="/contact" class="text-sm font-semibold text-text-secondary hover:text-primary-accent transition-colors">{{ 'common.contactUs' | translate }}</a>
+    <div class="flex gap-4">
+      <a href="https://www.linkedin.com/company/hussnaintechvertex" target="_blank" rel="noopener" class="text-text-muted hover:text-primary-accent transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+      <a href="https://github.com/hussnain22" target="_blank" rel="noopener" class="text-text-muted hover:text-primary-accent transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.835 2.809 1.305 3.493.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.312.465-2.387 1.235-3.221-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3-.311 1.005-.138 2.052-.138 3.086 0 2.285-.011 3.29 1.056 3.29 1.056.645 1.653.24 2.873.105 3.176.769.835 1.235 1.909 1.235 3.221 0 4.61-2.801 5.624-5.475 5.929.42.36.81 1.096.81 2.227v3.293c0 .319.192.694.801.576 4.742-1.564 8.18-6.046 8.18-11.385 0-6.627-5.373-12-12-12z"/></svg></a>
+      <a href="https://x.com/your_twitter_handle" target="_blank" rel="noopener" class="text-text-muted hover:text-primary-accent transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.322 0-6.012 2.69-6.012 6.009 0 .47.054.925.156 1.36-.007-.066-.013-.12-.02-.179C8.561 11.23 4.596 9.07 1.957 5.093c-.456.775-.719 1.679-.719 2.642 0 1.815.918 3.421 2.304 4.341-.85-.025-1.649-.263-2.349-.607-.03.018-.06.035-.09.053-.004.102-.007.205-.007.318 0 2.924 2.083 5.37 4.868 5.91-.497.136-.102.348-1.52.275-.487.164-.962.247-1.396.247-.643 0-1.267-.099-1.874-.29 2.877 1.868 6.51 3.128 10.375 3.128 12.449 0 19.262-10.375 19.262-19.263 0-.294-.006-.587-.019-.877.83-.594 1.562-1.334 2.139-2.176z"/></svg></a>
+    </div>
+    
+    <!-- Language Selector -->
+    <div class="relative ml-4">
+      <select (change)="onLanguageChange($event)" [value]="currentLanguage()"
+              class="block w-auto py-2 px-3 border border-input-border bg-input-bg rounded-md shadow-sm focus:outline-none focus:ring-primary-accent focus:border-primary-accent text-text-secondary text-sm">
+        @for (lang of availableLanguages(); track lang.code) {
+          <option [value]="lang.code">{{ lang.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</footer>

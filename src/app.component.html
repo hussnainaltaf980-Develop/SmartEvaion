@@ -1,0 +1,8 @@
+<app-notification></app-notification>
+<div class="relative z-10">
+  <router-outlet></router-outlet>
+</div>
+@if (isAuthenticated()) {
+  <app-chatbot></app-chatbot>
+}
+<app-loading-spinner></app-loading-spinner>

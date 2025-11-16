@@ -1,0 +1,24 @@
+.signup-label {
+    @apply block text-sm font-medium text-blue-300/80 mb-2;
+}
+
+.signup-input {
+    @apply w-full p-3 bg-indigo-900/50 border border-indigo-700 rounded-lg text-white placeholder-indigo-300/70 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-colors shadow-inner shadow-indigo-900/30;
+}
+
+.signup-input:disabled {
+    @apply bg-indigo-800/50 cursor-not-allowed;
+}
+
+/* Date picker icon color for dark mode */
+.signup-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+.signup-button {
+    @apply btn-sheen w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white;
+}
+
+.image-placeholder {
+    @apply bg-indigo-900/50 border-2 border-dashed border-indigo-700 text-indigo-400;
+}

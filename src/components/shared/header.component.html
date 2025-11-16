@@ -1,0 +1,37 @@
+<a routerLink="/landing" class="flex items-center justify-center gap-3 cursor-pointer group" aria-label="Go to Evalion Vertex home">
+  <!-- New SVG Logo Icon -->
+  <div class="w-10 h-10 transition-transform duration-300 ease-in-out group-hover:scale-110 group-hover:rotate-6">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logo-grad-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="var(--color-primary-accent)" />
+          <stop offset="100%" stop-color="var(--color-secondary-accent)" />
+        </linearGradient>
+        <linearGradient id="logo-grad-secondary" x1="100%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="var(--color-secondary-accent)" />
+          <stop offset="100%" stop-color="#FFFFFF" />
+        </linearGradient>
+        <filter id="logo-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <g filter="url(#logo-glow)">
+        <!-- The shape represents a 'V' for Vertex and a crystal for precision -->
+        <!-- Left shard of the 'V' -->
+        <path d="M4 12 L24 44 L16 44 L4 20 Z" fill="url(#logo-grad-primary)" class="transition-transform duration-300 ease-in-out group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:rotate-[-2deg]" />
+        <!-- Right shard of the 'V' -->
+        <path d="M44 12 L24 44 L32 44 L44 20 Z" fill="url(#logo-grad-secondary)" fill-opacity="0.8" class="transition-transform duration-300 ease-in-out group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:rotate-[2deg]" />
+        <!-- Top 'E' like element for Evalion -->
+        <path d="M12 4 L36 4 L24 16 Z" fill="white" class="transition-transform duration-300 ease-in-out group-hover:translate-y-1" />
+      </g>
+    </svg>
+  </div>
+  <!-- Text part of the logo -->
+  <h1 class="text-3xl font-bold font-['Poppins'] tracking-wider group-hover:scale-105 transition-transform duration-300 ease-in-out">
+    <span class="text-primary-accent">Evalion</span><span class="text-text-primary drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]">Vertex</span>
+  </h1>
+</a>

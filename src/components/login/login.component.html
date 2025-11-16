@@ -1,0 +1,176 @@
+<div class="min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-6 relative">
+  <div class="w-full max-w-md mx-auto z-10">
+     <header class="text-center mb-10 flex flex-col items-center">
+        <app-header></app-header>
+        <p class="text-lg text-blue-300/80 font-medium">{{ 'common.slogan' | translate }}</p>
+    </header>
+
+    <main class="bg-indigo-900/30 backdrop-blur-md border border-cyan-500/30 rounded-3xl shadow-3xl shadow-indigo-500/20 p-6 sm:p-10 transition-all duration-300 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-32 h-32 bg-violet-400/10 rounded-full blur-2xl translate-x-1/2 translate-y-1/2"></div>
+
+        @switch (loginState()) {
+          @case ('login') {
+            <div>
+              <div class="mb-6 bg-indigo-900/40 border border-cyan-500/30 rounded-lg p-4 text-center animate-fade-in">
+                  <h3 class="font-bold text-lg text-cyan-300 mb-2 flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {{ 'login.demoAccountsInfo' | translate }}
+                  </h3>
+                  <p class="text-sm text-indigo-200 mb-3">
+                    {{ 'login.demoAccountsAvailableText' | translate }}
+                    <a routerLink="/signup" class="font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
+                      {{ 'login.signUpHere' | translate }}
+                    </a>
+                  </p>
+                  <div class="pt-3 border-t border-indigo-700/50 text-sm text-indigo-200 space-y-1">
+                      <p><strong class="text-white">{{ 'login.adminEmail' | translate }}:</strong> hussnainmr07@gmail.com</p>
+                      <p><strong class="text-white">{{ 'login.candidateEmail' | translate }}:</strong> candidate@example.com</p>
+                      <p><strong class="text-white">{{ 'login.passwordLabel' | translate }} ({{ 'login.forBoth' | translate }}):</strong> password123</p>
+                  </div>
+              </div>
+              <div class="mb-6">
+                  <div class="flex border-b border-indigo-700/50">
+                      <button (click)="setActiveRole('candidate')" 
+                              class="flex-1 py-3 text-center font-semibold transition-colors duration-300 focus:outline-none"
+                              [class.text-cyan-400]="activeRole() === 'candidate'"
+                              [class.text-indigo-300]="activeRole() !== 'candidate'"
+                              [class.border-b-2]="activeRole() === 'candidate'"
+                              [class.border-cyan-400]="activeRole() === 'candidate'">
+                          {{ 'login.candidatePortal' | translate }}
+                      </button>
+                      <button (click)="setActiveRole('admin')" 
+                              class="flex-1 py-3 text-center font-semibold transition-colors duration-300 focus:outline-none"
+                              [class.text-cyan-400]="activeRole() === 'admin'"
+                              [class.text-indigo-300]="activeRole() !== 'admin'"
+                              [class.border-b-2]="activeRole() === 'admin'"
+                              [class.border-cyan-400]="activeRole() === 'admin'">
+                          {{ 'login.adminPortal' | translate }}
+                      </button>
+                  </div>
+              </div>
+              
+              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                  @if (loginError()) {
+                    <div class="p-3 mb-4 bg-red-900/40 border border-red-500/30 rounded-lg text-red-300 text-center text-sm animate-fade-in">
+                      {{ loginError() }}
+                    </div>
+                  }
+                  <div class="mb-4 relative group">
+                      <label for="email" class="block text-sm font-medium text-blue-300/80 mb-2">{{ 'login.emailLabel' | translate }}</label>
+                      <input id="email" type="email" formControlName="email"
+                             class="w-full p-3 bg-indigo-900/50 border border-indigo-700 rounded-lg text-white placeholder-blue-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-colors shadow-inner shadow-indigo-900/30"
+                             [placeholder]="'login.emailPlaceholder' | translate">
+                      @if (loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)) {
+                        <div class="text-red-400 text-xs mt-1 animate-fade-in px-1">
+                          @if (loginForm.get('email')?.hasError('required')) {
+                            <span>{{ 'login.emailRequired' | translate }}</span>
+                          }
+                          @if (loginForm.get('email')?.hasError('email')) {
+                            <span>{{ 'login.emailInvalid' | translate }}</span>
+                          }
+                        </div>
+                      }
+                  </div>
+
+                  <div class="mb-4">
+                      <label for="password" class="block text-sm font-medium text-blue-300/80 mb-2">{{ 'login.passwordLabel' | translate }}</label>
+                      <div class="relative group">
+                          <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                                 class="w-full p-3 pr-10 bg-indigo-900/50 border border-indigo-700 rounded-lg text-white placeholder-blue-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-colors shadow-inner shadow-indigo-900/30"
+                                 [placeholder]="'login.passwordPlaceholder' | translate">
+                          <button type="button" (click)="togglePasswordVisibility()" class="absolute inset-y-0 right-0 top-7 px-3 flex items-center text-blue-300/80 hover:text-cyan-400 transition-colors">
+                              @if (showPassword()) {
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                              } @else {
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.243 4.243-4.243-4.243" /></svg>
+                              }
+                          </button>
+                      </div>
+                      @if (loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)) {
+                        <div class="text-red-400 text-xs mt-1 animate-fade-in px-1">
+                          @if (loginForm.get('password')?.hasError('required')) {
+                            <span>{{ 'login.passwordRequired' | translate }}</span>
+                          }
+                        </div>
+                      }
+                  </div>
+
+                  <div class="flex items-center justify-between mb-6">
+                      <div class="flex items-center">
+                          <input id="remember-me" type="checkbox" formControlName="rememberMe" class="h-4 w-4 rounded border-indigo-700 bg-indigo-900/50 text-cyan-500 focus:ring-cyan-600">
+                          <label for="remember-me" class="ml-2 block text-sm text-indigo-200">{{ 'login.rememberMe' | translate }}</label>
+                      </div>
+                      <a (click)="forgotPassword()" class="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition-colors cursor-pointer">{{ 'login.forgotPassword' | translate }}</a>
+                  </div>
+
+                  <button type="submit" [disabled]="loginForm.invalid || isSubmitting()"
+                          class="btn-sheen w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-full text-lg transition-all hover:scale-105 shadow-lg shadow-blue-500/40 hover:shadow-purple-400/50 group">
+                       <span class="relative z-10 flex items-center justify-center">
+                        @if (isSubmitting()) {
+                          <div class="w-6 h-6 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                          <span class="ml-2">{{ 'login.loggingIn' | translate }}</span>
+                        } @else {
+                          <span>{{ 'login.loginButton' | translate }}</span>
+                        }
+                      </span>
+                  </button>
+              </form>
+
+              <p class="text-center mt-6 text-indigo-200">
+                {{ 'login.noAccount' | translate }} 
+                <a routerLink="/signup" class="font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">{{ 'login.signUpHere' | translate }}</a>
+              </p>
+            </div>
+          }
+          @case ('forgot-password') {
+            <div class="animate-fade-in text-center">
+                <h3 class="text-2xl font-bold text-white mb-4">{{ 'login.resetPasswordTitle' | translate }}</h3>
+                <p class="text-indigo-200 mb-6">{{ 'login.resetPasswordText' | translate }}</p>
+                <form [formGroup]="forgotPasswordForm" (ngSubmit)="requestPasswordReset()">
+                    <div class="mb-4">
+                        <label for="reset-email" class="sr-only">{{ 'login.emailLabel' | translate }}</label>
+                        <input id="reset-email" type="email" formControlName="email"
+                               class="w-full p-3 bg-indigo-900/50 border border-indigo-700 rounded-lg text-white placeholder-blue-300 focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-colors shadow-inner"
+                               [placeholder]="'login.emailPlaceholder' | translate">
+                    </div>
+                    
+                    <button type="submit" [disabled]="forgotPasswordForm.invalid || isResettingPassword()"
+                            class="btn-sheen w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-full text-lg transition-all hover:scale-105 shadow-lg shadow-blue-500/40">
+                        <span class="relative z-10 flex items-center justify-center">
+                          @if (isResettingPassword()) {
+                            <div class="w-6 h-6 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                            <span class="ml-2">{{ 'common.sending' | translate }}</span>
+                          } @else {
+                            <span>{{ 'login.sendResetLink' | translate }}</span>
+                          }
+                        </span>
+                    </button>
+                </form>
+                <p class="text-center mt-6">
+                    <a (click)="backToLogin()" class="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition-colors cursor-pointer">{{ 'login.backToLogin' | translate }}</a>
+                </p>
+            </div>
+          }
+          @case ('reset-sent') {
+            <div class="animate-fade-in text-center">
+                <div class="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-emerald-900/40">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-emerald-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">{{ 'login.checkEmailTitle' | translate }}</h3>
+                <p class="text-indigo-200 mb-6" [innerHTML]="'login.checkEmailText' | translate: {email: forgotPasswordForm.value.email}"></p>
+                <button (click)="backToLogin()"
+                        class="w-full sm:w-auto relative overflow-hidden bg-transparent border border-blue-500 hover:border-blue-400 hover:bg-blue-900/30 text-white font-bold py-3 px-8 rounded-full text-lg transition-all">
+                    <span class="relative z-10">{{ 'login.backToLogin' | translate }}</span>
+                </button>
+            </div>
+          }
+        }
+    </main>
+    <app-footer></app-footer>
+  </div>
+</div>

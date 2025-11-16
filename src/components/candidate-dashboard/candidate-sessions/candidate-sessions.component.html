@@ -1,0 +1,115 @@
+<div class="animate-fade-in space-y-8">
+  <div>
+    <h1 class="text-4xl font-bold text-text-primary">Interview Sessions</h1>
+    <p class="text-text-secondary mt-2 text-lg">Start a new practice session or review your past performance.</p>
+  </div>
+
+  <!-- Start New Session Section -->
+  <div class="bg-surface/50 border border-border-primary rounded-2xl p-6">
+    <h2 class="text-2xl font-bold text-text-primary mb-4">Choose an Interview Template</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (template of templates(); track template.id) {
+        <div class="flip-card-container">
+          <div class="flip-card">
+            <!-- Front of the card -->
+            <div class="flip-card-front bg-surface border border-border-primary p-6 flex flex-col justify-between shadow-lg">
+              <div>
+                <span class="px-2 py-1 text-xs font-bold rounded-full capitalize"
+                    [class.bg-blue-500/20]="template.type === 'technical'" [class.text-blue-300]="template.type === 'technical'"
+                    [class.bg-purple-500/20]="template.type === 'behavioral'" [class.text-purple-300]="template.type === 'behavioral'"
+                    [class.bg-yellow-500/20]="template.type === 'situational'" [class.text-yellow-300]="template.type === 'situational'"
+                    [class.bg-gray-500/20]="template.type === 'general'" [class.text-gray-300]="template.type === 'general'">
+                  {{ template.type }}
+                </span>
+                <h3 class="text-xl font-bold text-text-primary mt-3">{{ template.jobTitle }}</h3>
+                <p class="text-text-secondary text-sm">{{ template.experienceLevel }} Level</p>
+              </div>
+              <p class="text-text-muted mt-4 text-sm">{{ template.questions.length }} Questions</p>
+            </div>
+            <!-- Back of the card -->
+            <div class="flip-card-back bg-gradient-to-br from-primary-accent to-secondary-accent p-6">
+              <p class="text-bg-primary font-semibold text-center mb-4">Ready to start?</p>
+              <button (click)="startInterview(template)" class="bg-white text-primary-accent font-bold py-2 px-6 rounded-full transition-transform hover:scale-105">
+                Start Session
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+      @if (templates().length === 0) {
+        <p class="text-text-muted md:col-span-2 lg:col-span-3">No interview templates available at the moment.</p>
+      }
+    </div>
+  </div>
+
+  <!-- Past Sessions -->
+  <div class="bg-surface/50 border border-border-primary rounded-2xl p-6">
+    <h2 class="text-2xl font-bold text-text-primary mb-4">Past Sessions</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-border-primary text-text-muted">
+          <tr>
+            <th class="p-3">Title</th>
+            <th class="p-3">Date</th>
+            <th class="p-3">Score</th>
+            <th class="p-3">Status</th>
+            <th class="p-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (session of pastSessions(); track session.id) {
+            <tr class="border-b border-border-primary/50 hover:bg-surface/50 transition-colors">
+              <td class="p-3 font-semibold text-text-primary">{{ session.jobTitle }}</td>
+              <td class="p-3">{{ session.completedAt ? (session.completedAt | date:'medium') : (session.startedAt | date:'medium') }}</td>
+              <td class="p-3 font-bold" [class.text-green-400]="(session.overallScore ?? 0) >= 7" [class.text-yellow-400]="(session.overallScore ?? 0) >= 5 && (session.overallScore ?? 0) < 7" [class.text-red-400]="(session.overallScore ?? 0) < 5">
+                {{ session.overallScore?.toFixed(1) ?? 'N/A' }}
+              </td>
+              <td class="p-3">
+                <span class="px-2 py-1 text-xs font-bold rounded-full capitalize"
+                  [class.bg-green-500/20]="session.status === 'approved'" [class.text-green-300]="session.status === 'approved'"
+                  [class.bg-yellow-500/20]="session.status === 'pending'" [class.text-yellow-300]="session.status === 'pending'"
+                  [class.bg-red-500/20]="session.status === 'rejected'" [class.text-red-300]="session.status === 'rejected'">
+                  {{ session.status }}
+                </span>
+              </td>
+              <td class="p-3 text-right">
+                <button class="text-primary-accent hover:underline" [disabled]="!session.completedAt">View Report</button>
+              </td>
+            </tr>
+          }
+          @if (pastSessions().length === 0) {
+            <tr>
+              <td colspan="5" class="p-6 text-center text-text-muted">You haven't completed any sessions yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Start Session Confirmation Dialog -->
+@if (showStartDialog(); as template) {
+  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" (click)="cancelStart()">
+    <div class="bg-surface border border-border-primary rounded-2xl shadow-2xl w-full max-w-md m-4" (click)="$event.stopPropagation()">
+      <div class="p-6">
+        <h3 class="text-xl font-bold text-text-primary mb-2">Start Interview Session</h3>
+        <p class="text-text-secondary mb-4">You are about to start the "{{ template.jobTitle }}" interview.</p>
+        <label for="sessionTitle" class="block text-sm font-medium text-text-secondary mb-2">Session Title</label>
+        <input id="sessionTitle" type="text" [(ngModel)]="sessionTitle" class="w-full p-2 bg-input-bg border border-input-border rounded-lg text-text-primary focus:ring-2 focus:ring-primary-accent focus:outline-none transition-colors">
+      </div>
+      <div class="bg-surface/50 p-4 flex justify-end gap-4 rounded-b-2xl">
+        <button (click)="cancelStart()" class="bg-transparent border border-input-border hover:bg-surface/50 text-text-primary font-bold py-2 px-4 rounded-full transition-all">
+          Cancel
+        </button>
+        <button (click)="confirmStart()" [disabled]="isStarting() || !sessionTitle()" class="bg-gradient-to-r from-primary-accent to-secondary-accent hover:opacity-90 disabled:opacity-50 text-bg-primary font-bold py-2 px-4 rounded-full transition-all flex items-center justify-center w-36">
+          @if(isStarting()) {
+            <div class="w-5 h-5 border-2 border-bg-primary border-t-transparent rounded-full animate-spin"></div>
+          } @else {
+            <span>Confirm & Start</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

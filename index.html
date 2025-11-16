@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.tailwindcss.com https://cdn.jsdelivr.net/npm/ https://aistudiocdn.com https://next.esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src * data:; worker-src 'self' blob: https://next.esm.sh; connect-src 'self' ws: wss: https://generativelanguage.googleapis.com https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; manifest-src 'self';">
+  <title>Evalion Vertex</title>
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#010A1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="https://aistudio.google.com/app/assets/favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&family=Playfair+Display:wght@700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <style>
+    :root {
+      /* Default Theme: VertexMind Dark */
+      --color-bg: #010A1A;
+      --color-surface: rgba(17, 28, 51, 0.5);
+      --color-primary-accent: #22D3EE;
+      --color-secondary-accent: #818CF8;
+      --color-text-primary: #FFFFFF;
+      --color-text-secondary: rgba(224, 231, 255, 0.8);
+      --color-text-muted: rgba(199, 210, 254, 0.7);
+      --color-border: rgba(6, 182, 212, 0.3);
+      --color-input-bg: rgba(14, 27, 51, 0.5); /* indigo-900/50 */
+      --color-input-border: #3730a3; /* indigo-700 */
+    }
+
+    html.light {
+      /* New Professional Light Theme */
+      --color-bg: #F9FAFB; /* gray-50 */
+      --color-surface: #FFFFFF; /* white */
+      --color-primary-accent: #3B82F6; /* blue-500 */
+      --color-secondary-accent: #6366F1; /* indigo-500 */
+      --color-text-primary: #111827; /* gray-900 */
+      --color-text-secondary: #4B5563; /* gray-600 */
+      --color-text-muted: #6B7280; /* gray-500 */
+      --color-border: #E5E7EB; /* gray-200 */
+      --color-input-bg: #F3F4F6; /* gray-100 */
+      --color-input-border: #D1D5DB; /* gray-300 */
+    }
+
+    html.focus-mode {
+      --color-primary-accent: #00f6ff;
+      --color-secondary-accent: #ff3864;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Poppins', sans-serif;
+    }
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-in-down {
+      opacity: 0; /* Start hidden */
+      animation: fadeInDown 0.6s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-in-up {
+      opacity: 0; /* Start hidden */
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    @keyframes slideOutLeft {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-50px); opacity: 0; }
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .animate-slide-out-left {
+      animation: slideOutLeft 0.4s ease-in forwards;
+    }
+    .animate-slide-in-right {
+      animation: slideInRight 0.4s ease-out forwards;
+    }
+
+    /* --- 3D Flowing Background --- */
+    #background-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      filter: blur(100px); /* Creates the soft, flowing, luminous look */
+      animation: backgroundFlow 60s ease-in-out infinite alternate;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4; /* Slightly reduced opacity for a softer glow */
+      will-change: transform;
+    }
+
+    .blob:nth-child(1) {
+      width: 500px;
+      height: 500px;
+      background: var(--color-primary-accent);
+      top: -10%;
+      left: -10%;
+      animation: moveBlob1 30s infinite alternate;
+      transition: background-color 0.5s ease;
+    }
+    
+    html.focus-mode .blob:nth-child(1) {
+      animation-duration: 10s;
+    }
+
+    .blob:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      background: #6A0DAD; /* Dark Violet */
+      bottom: -15%;
+      right: -15%;
+      animation: moveBlob2 35s infinite alternate-reverse;
+    }
+    
+    html.focus-mode .blob:nth-child(2) {
+      animation-duration: 12s;
+    }
+
+    .blob:nth-child(3) {
+      width: 350px;
+      height: 350px;
+      background: var(--color-secondary-accent);
+      top: 40%;
+      left: 20%;
+      animation: moveBlob3 25s infinite alternate;
+      transition: background-color 0.5s ease;
+    }
+
+    html.focus-mode .blob:nth-child(3) {
+      animation-duration: 8s;
+    }
+
+    @keyframes moveBlob1 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate(20vw, 30vh) scale(1.1) rotate(90deg); }
+      66% { transform: translate(5vw, -10vh) scale(0.9) rotate(180deg); }
+      100% { transform: translate(0, 0) scale(1) rotate(270deg); }
+    }
+
+    @keyframes moveBlob2 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate(-10vw, -20vh) scale(1.2) rotate(-90deg); }
+      66% { transform: translate(15vw, 10vh) scale(0.95) rotate(-180deg); }
+      100% { transform: translate(0, 0) scale(1) rotate(-270deg); }
+    }
+
+    @keyframes moveBlob3 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate(10vw, -15vh) scale(1.05) rotate(45deg); }
+      66% { transform: translate(-5vw, 20vh) scale(1.15) rotate(135deg); }
+      100% { transform: translate(0, 0) scale(1) rotate(225deg); }
+    }
+
+    @keyframes backgroundFlow {
+      0% { filter: blur(80px) hue-rotate(0deg); }
+      50% { filter: blur(120px) hue-rotate(30deg); }
+      100% { filter: blur(80px) hue-rotate(0deg); }
+    }
+
+    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+    /* Custom slower pulse for paused state */
+    @keyframes pulseSlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .7; }
+    }
+    .animate-pulse-slow {
+      animation: pulseSlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    /* --- 3D Tilt Card Effect --- */
+    .card-tilt-container {
+      perspective: 1000px;
+    }
+    .card-tilt {
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform-style: preserve-3d;
+    }
+    .card-tilt-container:hover .card-tilt {
+      transform: rotateX(3deg) rotateY(-3deg) scale(1.02) translateZ(8px);
+    }
+
+    /* --- Flip Card Effect --- */
+    .flip-card-container {
+      background-color: transparent;
+      min-height: 200px; /* Give a consistent minimum height */
+      perspective: 1000px;
+    }
+
+    .flip-card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card-container:hover .flip-card {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem; /* 16px to match rounded-2xl */
+    }
+
+    .flip-card-back {
+      transform: rotateY(180deg);
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- Animated Gradient Border --- */
+    .animated-gradient-border {
+      position: relative;
+      background-clip: padding-box;
+      border: solid 2px transparent;
+    }
+    .animated-gradient-border::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      z-index: -1;
+      margin: -2px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--color-primary-accent), var(--color-secondary-accent), #6A0DAD, var(--color-primary-accent));
+      background-size: 400% 400%;
+      animation: gradient-move 8s ease infinite;
+    }
+    @keyframes gradient-move {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* --- Microphone listening wave --- */
+    .mic-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: rgba(34, 211, 238, 0.3);
+      transform-origin: center;
+      animation: mic-wave-anim 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+      opacity: 0;
+    }
+    @keyframes mic-wave-anim {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2);
+        opacity: 0;
+      }
+    }
+    .mic-wave.delay-1 { animation-delay: 0.5s; }
+    .mic-wave.delay-2 { animation-delay: 1s; }
+
+    /* --- Confetti --- */
+    .confetti-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        overflow: hidden;
+    }
+    .confetti {
+        position: absolute;
+        width: 8px;
+        height: 16px;
+        top: -20px;
+        opacity: 0;
+        animation: confetti-fall 5s linear forwards;
+    }
+    @keyframes confetti-fall {
+        0% {
+            transform: translateY(0vh) rotateZ(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(105vh) rotateZ(720deg);
+            opacity: 0;
+        }
+    }
+
+    /* --- Flowing Particles --- */
+    .flowing-particles-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+    .flowing-particle {
+        position: absolute;
+        top: -10%;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--color-primary-accent));
+        animation: particle-fall linear infinite;
+    }
+    @keyframes particle-fall {
+        to {
+            transform: translateY(120vh);
+        }
+    }
+
+    /* --- Button Sheen Effect --- */
+    .btn-sheen {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-sheen::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 20%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(25deg);
+      opacity: 0;
+      transition: opacity 0.4s ease, left 0.6s ease;
+    }
+    .btn-sheen:hover::after {
+      opacity: 1;
+      left: 130%;
+    }
+
+    /* --- Custom Scrollbar --- */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--color-primary-accent), var(--color-secondary-accent));
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(to bottom, var(--color-secondary-accent), var(--color-primary-accent));
+      background-clip: content-box;
+    }
+
+    /* --- Tooltip --- */
+    .tooltip-container {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      width: 240px;
+      background-color: var(--color-surface);
+      color: var(--color-text-secondary);
+      text-align: center;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 10;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -120px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      border: 1px solid var(--color-border);
+      font-size: 0.875rem;
+      font-weight: normal;
+      line-height: 1.4;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: var(--color-border) transparent transparent transparent;
+    }
+    .tooltip-container:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    app-root {
+      position: relative;
+      z-index: 1;
+    }
+    /* Styles for recording active border */
+    .recording-active {
+      animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), inset 0 0 0 2px rgba(239, 68, 68, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0), inset 0 0 0 2px rgba(239, 68, 68, 0.7);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), inset 0 0 0 2px rgba(239, 68, 68, 0.7);
+      }
+    }
+  </style>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'serif': ['"Playfair Display"', 'serif'],
+            'script': ['"Dancing Script"', 'cursive'],
+          },
+          colors: {
+            'bg-primary': 'var(--color-bg)',
+            'surface': 'var(--color-surface)',
+            'primary-accent': 'var(--color-primary-accent)',
+            'secondary-accent': 'var(--color-secondary-accent)',
+            'text-primary': 'var(--color-text-primary)',
+            'text-secondary': 'var(--color-text-secondary)',
+            'text-muted': 'var(--color-text-muted)',
+            'border-primary': 'var(--color-border)',
+            'input-bg': 'var(--color-input-bg)',
+            'input-border': 'var(--color-input-border)',
+          }
+        }
+      }
+    }
+  </script>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.9?external=rxjs",
+    "@google/genai": "https://next.esm.sh/@google/genai@^1.28.0?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^20.3.9?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^20.3.9?external=rxjs",
+    "@angular/common/http": "https://next.esm.sh/@angular/common@^20.3.9/http?external=rxjs",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^20.3.9?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.3.9?external=rxjs",
+    "@angular/router": "https://next.esm.sh/@angular/router@^20.3.9?external=rxjs",
+    "monaco-editor": "https://next.esm.sh/monaco-editor@0.54.0?external=rxjs",
+    "path": "https://next.esm.sh/path@^0.12.7?external=rxjs",
+    "express": "https://next.esm.sh/express@^5.1.0?external=rxjs",
+    "dotenv": "https://next.esm.sh/dotenv@^17.2.3?external=rxjs",
+    "jsonwebtoken": "https://next.esm.sh/jsonwebtoken@^9.0.2?external=rxjs",
+    "cors": "https://next.esm.sh/cors@^2.8.5?external=rxjs",
+    "bcryptjs": "https://next.esm.sh/bcryptjs@^3.0.3?external=rxjs",
+    "mongoose": "https://next.esm.sh/mongoose@^8.19.3?external=rxjs",
+    "url": "https://next.esm.sh/url@^0.11.4?external=rxjs",
+    "@angular/core/rxjs-interop": "https://next.esm.sh/@angular/core@^20.3.11/rxjs-interop?external=rxjs",
+    "ws": "https://next.esm.sh/ws@^8.18.3?external=rxjs",
+    "http": "https://next.esm.sh/http@^0.0.1-security?external=rxjs"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="background-animation">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+  </div>
+  <app-root></app-root>
+  <script type="module" src="index.tsx"></script>
+</body>
+</html>

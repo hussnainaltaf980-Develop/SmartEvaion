@@ -1,0 +1,6 @@
+@if (isLoading()) {
+  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-[9999] animate-fade-in">
+    <div class="loader"></div>
+    <p class="text-white mt-4 text-lg font-semibold animate-pulse">{{ 'common.loading' | translate }}</p>
+  </div>
+}

@@ -1,0 +1,217 @@
+<div class="min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-6 relative">
+  <div class="w-full max-w-3xl mx-auto z-10">
+    <header class="text-center mb-10 flex flex-col items-center">
+      <app-header></app-header>
+      <p class="text-lg text-blue-300/80 font-medium">{{ 'common.slogan' | translate }}</p>
+    </header>
+
+    <main class="bg-indigo-900/30 backdrop-blur-md border border-cyan-500/30 rounded-3xl shadow-3xl shadow-indigo-500/20 p-6 sm:p-10 transition-all duration-500 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-32 h-32 bg-violet-400/10 rounded-full blur-2xl translate-x-1/2 translate-y-1/2"></div>
+      
+      <!-- Portal Tabs -->
+      <div class="flex border-b border-indigo-700/50 mb-6">
+        <button 
+          (click)="portal.set('candidate')" 
+          class="flex-1 pb-3 text-center font-bold text-lg transition-colors duration-300 focus:outline-none"
+          [class.text-cyan-400]="portal() === 'candidate'"
+          [class.text-indigo-300]="portal() !== 'candidate'"
+          [class.border-b-4]="portal() === 'candidate'"
+          [class.border-cyan-400]="portal() === 'candidate'">
+          {{ 'signup.candidatePortal' | translate }}
+        </button>
+        <button 
+          (click)="portal.set('admin')" 
+          class="flex-1 pb-3 text-center font-bold text-lg transition-colors duration-300 focus:outline-none"
+          [class.text-cyan-400]="portal() === 'admin'"
+          [class.text-indigo-300]="portal() !== 'admin'"
+          [class.border-b-4]="portal() === 'admin'"
+          [class.border-cyan-400]="portal() === 'admin'">
+          {{ 'signup.adminPortal' | translate }}
+        </button>
+      </div>
+
+      <!-- Candidate Form -->
+      @if (portal() === 'candidate') {
+        <div class="animate-fade-in">
+          <p class="text-center text-indigo-200 mb-6">{{ 'signup.createAccountHeading' | translate }}</p>
+          <form [formGroup]="candidateForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="space-y-6">
+
+              <!-- Profile Photo -->
+              <div class="flex flex-col items-center gap-4">
+                <div class="w-28 h-28 rounded-full image-placeholder flex items-center justify-center shrink-0 overflow-hidden">
+                    @if (photoPreview(); as previewUrl) {
+                      <img [src]="previewUrl" alt="Profile Photo Preview" class="w-full h-full object-cover">
+                    } @else {
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                      </svg>
+                    }
+                </div>
+                <label for="photo-upload" class="cursor-pointer text-cyan-400 hover:text-cyan-300 text-sm font-semibold transition-colors">
+                  {{ 'signup.uploadProfilePicture' | translate }}
+                </label>
+                <input id="photo-upload" type="file" (change)="onFileChange($event, 'photo')" accept="image/*" class="hidden">
+              </div>
+
+              <!-- Form Fields Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <div>
+                  <label for="name" class="signup-label">{{ 'signup.fullNameLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="name" type="text" formControlName="name" class="signup-input" required>
+                </div>
+                 <div>
+                  <label for="fatherName" class="signup-label">{{ 'signup.fatherNameLabel' | translate }}</label>
+                  <input id="fatherName" type="text" formControlName="fatherName" class="signup-input">
+                </div>
+                <div>
+                  <label for="gender" class="signup-label">{{ 'signup.genderLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <select id="gender" formControlName="gender" class="signup-input" required>
+                    <option value="" disabled>{{ 'signup.selectGender' | translate }}</option>
+                    <option value="male">{{ 'signup.genderMale' | translate }}</option>
+                    <option value="female">{{ 'signup.genderFemale' | translate }}</option>
+                    <option value="other">{{ 'signup.genderOther' | translate }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="cnic" class="signup-label">{{ 'signup.cnicLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="cnic" type="text" formControlName="cnic" class="signup-input" [placeholder]="'signup.cnicPlaceholder' | translate" required>
+                </div>
+                <div>
+                  <label for="email" class="signup-label">{{ 'signup.emailLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="email" type="email" formControlName="email" class="signup-input" required>
+                </div>
+                <div class="relative">
+                  <label for="password" class="signup-label">{{ 'signup.passwordLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" class="signup-input" required>
+                  <button type="button" (click)="togglePasswordVisibility()" class="absolute inset-y-0 right-0 top-7 px-3 flex items-center text-blue-300/80 hover:text-cyan-400">
+                      @if (!showPassword()) { <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg> }
+                      @else { <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.243 4.243-4.243-4.243" /></svg> }
+                  </button>
+                </div>
+                <div class="relative">
+                  <label for="confirmPassword" class="signup-label">{{ 'signup.confirmPasswordLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirmPassword" class="signup-input" required>
+                </div>
+                <div>
+                  <label for="dob" class="signup-label">{{ 'signup.dobLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="dob" type="date" formControlName="dob" class="signup-input" required>
+                </div>
+                <div>
+                  <label for="mobile" class="signup-label">{{ 'signup.mobileLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="mobile" type="text" formControlName="mobile" class="signup-input" [placeholder]="'signup.mobilePlaceholder' | translate" required>
+                </div>
+              </div>
+
+               <!-- Terms and Submit -->
+              <div class="flex items-start">
+                  <input id="agreeToTerms-candidate" type="checkbox" formControlName="agreeToTerms" class="h-4 w-4 mt-1 rounded border-indigo-700 bg-indigo-900/50 text-cyan-500 focus:ring-cyan-600">
+                  <label for="agreeToTerms-candidate" class="ml-3 block text-sm text-indigo-200">
+                    I agree to the <a href="#" class="font-semibold text-cyan-400 hover:underline">Terms of Service</a> and <a href="#" class="font-semibold text-cyan-400 hover:underline">Privacy Policy</a>.
+                  </label>
+              </div>
+
+              <div class="mt-8">
+                <button type="submit" [disabled]="isSubmitting() || candidateForm.invalid" class="w-full font-bold py-3 px-8 rounded-full text-lg transition-all shadow-lg signup-button">
+                  <span class="relative z-10 flex items-center justify-center">
+                    @if (isSubmitting()) {
+                      <div class="w-6 h-6 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                      <span class="ml-3">{{ 'signup.submittingButton' | translate }}</span>
+                    } @else {
+                      <span>{{ 'signup.submitButton' | translate }}</span>
+                    }
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- Admin Form -->
+      @if (portal() === 'admin') {
+        <div class="animate-fade-in">
+          <p class="text-center text-indigo-200 mb-6">{{ 'signup.createAdminAccount' | translate }}</p>
+          <form [formGroup]="adminForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="space-y-6">
+                <!-- Admin Form Fields Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <div>
+                  <label for="admin-name" class="signup-label">{{ 'signup.fullNameLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="admin-name" type="text" formControlName="name" class="signup-input" required>
+                </div>
+                <div>
+                  <label for="admin-company" class="signup-label">{{ 'signup.companyLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="admin-company" type="text" formControlName="companyName" class="signup-input" [placeholder]="'signup.companyPlaceholder' | translate" required>
+                </div>
+                <div class="md:col-span-2">
+                  <label for="admin-email" class="signup-label">{{ 'signup.emailLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="admin-email" type="email" formControlName="email" class="signup-input" required>
+                </div>
+                <div class="relative">
+                  <label for="admin-password" class="signup-label">{{ 'signup.passwordLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="admin-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" class="signup-input" required>
+                </div>
+                <div class="relative">
+                  <label for="admin-confirmPassword" class="signup-label">{{ 'signup.confirmPasswordLabel' | translate }} <span class="text-red-400">*</span></label>
+                  <input id="admin-confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirmPassword" class="signup-input" required>
+                </div>
+              </div>
+              
+               <!-- Company Logo Upload -->
+              <div>
+                <label class="signup-label">{{ 'signup.companyLogoLabel' | translate }} <span class="text-red-400">*</span></label>
+                <div class="mt-2 flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-md image-placeholder flex items-center justify-center shrink-0 overflow-hidden">
+                        @if(logoPreview(); as logo) {
+                            <img [src]="logo" alt="Company Logo Preview" class="w-full h-full object-contain">
+                        } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                        }
+                    </div>
+                    <label for="logo-upload" class="relative cursor-pointer bg-indigo-800/50 py-2 px-3 border border-indigo-600 rounded-md shadow-sm text-sm leading-4 font-medium text-indigo-200 hover:bg-indigo-700/50 focus:outline-none">
+                        <span>{{ 'signup.uploadFile' | translate }}</span>
+                        <input id="logo-upload" name="logo-upload" type="file" class="sr-only" (change)="onFileChange($event, 'logo')" accept="image/*">
+                    </label>
+                     @if(logoFileName(); as name) {
+                        <span class="text-sm text-indigo-300 truncate" [title]="name">{{ name }}</span>
+                    }
+                </div>
+              </div>
+
+               <!-- Terms and Submit -->
+              <div class="flex items-start">
+                  <input id="agreeToTerms-admin" type="checkbox" formControlName="agreeToTerms" class="h-4 w-4 mt-1 rounded border-indigo-700 bg-indigo-900/50 text-cyan-500 focus:ring-cyan-600">
+                   <label for="agreeToTerms-admin" class="ml-3 block text-sm text-indigo-200">
+                    I agree to the <a href="#" class="font-semibold text-cyan-400 hover:underline">Terms of Service</a> and <a href="#" class="font-semibold text-cyan-400 hover:underline">Privacy Policy</a>.
+                  </label>
+              </div>
+
+              <div class="mt-8">
+                <button type="submit" [disabled]="isSubmitting() || adminForm.invalid" class="w-full font-bold py-3 px-8 rounded-full text-lg transition-all shadow-lg signup-button">
+                   <span class="relative z-10 flex items-center justify-center">
+                    @if (isSubmitting()) {
+                      <div class="w-6 h-6 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                      <span class="ml-3">{{ 'signup.submittingButton' | translate }}</span>
+                    } @else {
+                      <span>{{ 'signup.createAdminAccount' | translate }}</span>
+                    }
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      }
+      
+      <p class="text-center mt-6 text-indigo-200">
+        {{ 'signup.alreadyHaveAccount' | translate }} 
+        <a routerLink="/login" class="font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">{{ 'signup.loginLink' | translate }}</a>
+      </p>
+
+    </main>
+
+    <app-footer></app-footer>
+  </div>
+</div>
