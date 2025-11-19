@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
-const { isAdmin } = require('../middleware/authMiddleware');
+const userController = require('../controllers/userController.js');
+const { isAdmin } = require('../middleware/authMiddleware.js');
 
 // Note: The base path for these routes is already protected by the 'protect' middleware in server.js
 

@@ -1,6 +1,14 @@
+
 @if (isLoading()) {
-  <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-[9999] animate-fade-in">
-    <div class="loader"></div>
-    <p class="text-white mt-4 text-lg font-semibold animate-pulse">{{ 'common.loading' | translate }}</p>
+  <div class="fixed inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center z-[9999] animate-fade-in">
+    <!-- Enhanced Spinner Visual -->
+    <div class="relative w-24 h-24 mb-8">
+      <div class="absolute inset-0 border-t-4 border-b-4 border-cyan-400 rounded-full animate-spin"></div>
+      <div class="absolute inset-0 border-r-4 border-l-4 border-indigo-500 rounded-full animate-spin [animation-direction:reverse] [animation-duration:1.5s]"></div>
+      <div class="absolute inset-4 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-full blur-md"></div>
+    </div>
+    
+    <!-- Dynamic Text -->
+    <p class="text-white text-xl font-light tracking-wider animate-pulse">{{ message() }}</p>
   </div>
 }

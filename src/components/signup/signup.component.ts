@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators, ValidatorFn } from '@angular/forms';
@@ -9,18 +10,15 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 import { TranslationService } from '../../services/translation.service';
 import { FooterComponent } from '../shared/footer.component';
 
-// Custom validator to check if passwords match
 export const passwordsMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
   
   if (password && confirmPassword && password.value !== confirmPassword.value) {
-    // Set the error on the confirmPassword field to display the message there
     confirmPassword.setErrors({ passwordsMismatch: true });
     return { passwordsMismatch: true };
   }
   
-  // If they match, remove the error from the confirmPassword field
   if (confirmPassword?.hasError('passwordsMismatch')) {
     confirmPassword.setErrors(null);
   }
@@ -43,16 +41,20 @@ export class SignupComponent {
   private router: Router = inject(Router);
   private translationService = inject(TranslationService);
   
-  portal = signal<'candidate' | 'admin'>('candidate');
+  step = signal<1 | 2>(1);
+  selectedRole = signal<'candidate' | 'company'>('candidate');
   isSubmitting = signal(false);
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   
   photoPreview = signal<string | null>(null);
-  photoFileName = signal<string | null>(null);
-
   logoPreview = signal<string | null>(null);
-  logoFileName = signal<string | null>(null);
+
+  commonForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', Validators.required],
+  }, { validators: passwordsMatchValidator });
 
   candidateForm = this.fb.group({
     name: ['', Validators.required],
@@ -61,24 +63,16 @@ export class SignupComponent {
     dob: ['', Validators.required],
     cnic: ['', [Validators.required, Validators.pattern(/^\d{5}-\d{7}-\d{1}$/)]],
     mobile: ['', [Validators.required, Validators.pattern(/^\+?\d{10,14}$/)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required],
     photoUrl: [''],
     agreeToTerms: [false, Validators.requiredTrue]
-  }, { validators: passwordsMatchValidator });
+  });
 
-  adminForm = this.fb.group({
+  companyForm = this.fb.group({
     name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required],
     companyName: ['', Validators.required],
     companyLogo: ['', Validators.required],
     agreeToTerms: [false, Validators.requiredTrue]
-  }, { validators: passwordsMatchValidator });
-
-  constructor() {}
+  });
 
   togglePasswordVisibility(): void {
     this.showPassword.update(value => !value);
@@ -97,36 +91,62 @@ export class SignupComponent {
         const result = reader.result as string;
         if (type === 'photo') {
             this.photoPreview.set(result);
-            this.photoFileName.set(file.name);
             this.candidateForm.patchValue({ photoUrl: result });
         } else {
             this.logoPreview.set(result);
-            this.logoFileName.set(file.name);
-            this.adminForm.patchValue({ companyLogo: result });
-            this.adminForm.get('companyLogo')?.updateValueAndValidity();
+            this.companyForm.patchValue({ companyLogo: result });
+            this.companyForm.get('companyLogo')?.updateValueAndValidity();
         }
       };
       reader.readAsDataURL(file);
     }
   }
 
-  onSubmit(): void {
-    const isCandidate = this.portal() === 'candidate';
-    const form = isCandidate ? this.candidateForm : this.adminForm;
+  setRole(role: 'candidate' | 'company'): void {
+    this.selectedRole.set(role);
+  }
 
-    if (form.invalid) {
-      form.markAllAsTouched();
+  nextStep(): void {
+    this.commonForm.markAllAsTouched();
+    if (this.commonForm.invalid) {
+      this.notificationService.showError('Please fill out the required fields correctly to continue.');
+      return;
+    }
+    this.step.set(2);
+  }
+
+  prevStep(): void {
+    this.step.set(1);
+  }
+
+  socialLogin(provider: string): void {
+    this.notificationService.showInfo(`${provider} login is for demonstration purposes only.`);
+  }
+
+  onSubmit(): void {
+    const roleForm = this.selectedRole() === 'candidate' ? this.candidateForm : this.companyForm;
+    roleForm.markAllAsTouched();
+
+    if (roleForm.invalid) {
       this.notificationService.showError('Please correct the errors in the form before submitting.');
       return;
     }
 
     this.isSubmitting.set(true);
     
-    const { confirmPassword, agreeToTerms, ...userData } = form.value as any;
+    const commonData = this.commonForm.getRawValue();
+    const roleData = roleForm.getRawValue();
 
+    const { confirmPassword, ...finalCommonData } = commonData;
+    const { agreeToTerms, ...finalRoleData } = roleData;
+    
+    // Admin-level registration creates a 'super-admin' via the 'company' flow for demo purposes here
+    const finalRole = this.selectedRole() === 'candidate' ? 'candidate' : 'super-admin';
+    
     const payload: Omit<User, 'id' | 'disabled'> = {
-      ...userData,
-      role: isCandidate ? 'candidate' : 'super-admin',
+      ...finalCommonData,
+      ...finalRoleData,
+      role: finalRole,
     };
     
     this.authService.signUp(payload).subscribe({
@@ -139,6 +159,7 @@ export class SignupComponent {
         }
       },
       error: (err) => {
+        this.isSubmitting.set(false);
         console.error('Signup failed:', err);
       },
       complete: () => {

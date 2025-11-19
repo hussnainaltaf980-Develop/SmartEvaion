@@ -1,9 +1,11 @@
+
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { tap, catchError, finalize } from 'rxjs/operators';
 import { NotificationService } from './notification.service';
+import { LoadingService } from './loading.service';
 
 export type UserRole = 'candidate' | 'super-admin' | 'content-manager';
 
@@ -51,6 +53,8 @@ export class AuthService {
   private http = inject(HttpClient);
   private router: Router = inject(Router);
   private notificationService = inject(NotificationService);
+  private loadingService = inject(LoadingService);
+  
   private authApiUrl = '/api/auth';
   private userApiUrl = '/api/users';
 
@@ -103,11 +107,25 @@ export class AuthService {
   }
 
   login(email: string, password: string, rememberMe: boolean): Observable<AuthResponse> {
+    this.loadingService.show('Authenticating credentials...');
     const loginPayload: LoginRequest = { email, password };
 
     return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, loginPayload).pipe(
       tap(response => {
-        if (response.success && response.token && response.user) {
+        this.handleLoginSuccess(response, rememberMe);
+      }),
+      catchError(err => {
+        // Strictly use backend response errors.
+        return throwError(() => err);
+      }),
+      finalize(() => {
+        this.loadingService.hide();
+      })
+    );
+  }
+
+  private handleLoginSuccess(response: AuthResponse, rememberMe: boolean): void {
+     if (response.success && response.token && response.user) {
           // Clear any previous session data from both storages to prevent conflicts.
           localStorage.removeItem(this.TOKEN_KEY);
           localStorage.removeItem(this.USER_KEY);
@@ -119,31 +137,38 @@ export class AuthService {
           storage.setItem(this.USER_KEY, JSON.stringify(response.user));
           this.currentUser.set(response.user);
           
-          this.router.navigate([response.user.role === 'candidate' ? '/candidate' : '/admin']);
+          // Redirect based on role
+          if (response.user.role === 'super-admin' || response.user.role === 'content-manager') {
+             this.router.navigate(['/admin']);
+          } else {
+             this.router.navigate(['/candidate']);
+          }
+          
           this.notificationService.showSuccess('Login successful!');
-        } else {
-          throw new Error(response.message || 'Login failed: Unexpected response format.');
         }
-      }),
-      catchError(err => {
-        throw err;
-      })
-    );
   }
 
   signUp(userData: Omit<User, 'id' | 'disabled'>): Observable<ApiResponse> {
-     return this.http.post<ApiResponse>(`${this.authApiUrl}/register`, userData);
+     this.loadingService.show('Creating your account...');
+     return this.http.post<ApiResponse>(`${this.authApiUrl}/register`, userData).pipe(
+       finalize(() => this.loadingService.hide())
+     );
   }
 
   logout(): void {
-    this.currentUser.set(null);
-     if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(this.TOKEN_KEY);
-        localStorage.removeItem(this.USER_KEY);
-        sessionStorage.removeItem(this.TOKEN_KEY);
-        sessionStorage.removeItem(this.USER_KEY);
-     }
-    this.router.navigate(['/login']);
+    this.loadingService.show('Securely logging out...');
+    // Simulate a short delay for UX smoothness
+    setTimeout(() => {
+      this.currentUser.set(null);
+      if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem(this.TOKEN_KEY);
+          localStorage.removeItem(this.USER_KEY);
+          sessionStorage.removeItem(this.TOKEN_KEY);
+          sessionStorage.removeItem(this.USER_KEY);
+      }
+      this.router.navigate(['/login']);
+      this.loadingService.hide();
+    }, 800);
   }
   
   // Admin-specific methods
@@ -161,6 +186,7 @@ export class AuthService {
       this.notificationService.showError("Not logged in to update profile.");
       return of({ success: false, message: "Not logged in" });
     }
+    this.loadingService.show('Updating profile...');
     return this.http.put<ApiResponse>(`${this.userApiUrl}/${userId}`, updatedData).pipe(
       tap(response => {
         if (response.success && response.user) {
@@ -169,7 +195,8 @@ export class AuthService {
           const storage = localStorage.getItem(this.TOKEN_KEY) ? localStorage : sessionStorage;
           storage.setItem(this.USER_KEY, JSON.stringify(response.user));
         }
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 

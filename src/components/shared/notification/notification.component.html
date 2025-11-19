@@ -8,7 +8,7 @@
       [class.border-emerald-500/50]="notification.type === 'success'"
       [class.bg-blue-800/80]="notification.type === 'info'"
       [class.border-blue-500/50]="notification.type === 'info'"
-      role="alert"
+      [attr.role]="notification.type === 'error' ? 'alert' : 'status'"
     >
       <div class="shrink-0">
         @if (notification.type === 'error') {

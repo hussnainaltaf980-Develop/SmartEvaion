@@ -7,13 +7,13 @@ const http = require('http');
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 
-const authRoutes = require('./api/routes/auth');
-const userRoutes = require('./api/routes/users');
-const interviewRoutes = require('./api/routes/interviews');
-const sessionRoutes = require('./api/routes/sessions');
-const aiRoutes = require('./api/routes/ai');
-const codingRoutes = require('./api/routes/coding');
-const authMiddleware = require('./api/middleware/authMiddleware').protect;
+const authRoutes = require('./api/routes/auth.js');
+const userRoutes = require('./api/routes/users.js');
+const interviewRoutes = require('./api/routes/interviews.js');
+const sessionRoutes = require('./api/routes/sessions.js');
+const aiRoutes = require('./api/routes/ai.js');
+const codingRoutes = require('./api/routes/coding.js');
+const authMiddleware = require('./api/middleware/authMiddleware.js').protect;
 
 const app = express();
 const server = http.createServer(app);
@@ -81,12 +81,12 @@ app.set('webSocketClients', clients);
 
 
 // --- Static File Serving ---
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from the ROOT directory to allow access to index.tsx, src/, and node_modules (if needed via importmaps)
+app.use(express.static(__dirname));
 
-// All other GET requests not handled before will return the Angular app
+// All other GET requests not handled before will return the Angular app (Root index.html)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Generic error handling middleware

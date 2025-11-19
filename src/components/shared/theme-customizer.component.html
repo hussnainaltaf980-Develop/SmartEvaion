@@ -3,11 +3,12 @@
   <p class="text-center text-text-secondary mb-8">{{ 'themeCustomizer.subtitle' | translate }}</p>
 
   <div class="bg-surface border border-border-primary rounded-2xl p-6 mb-8 max-w-lg mx-auto flex items-center justify-between shadow-lg dark:shadow-none">
-    <span class="text-text-secondary font-medium">{{ 'themeCustomizer.lightMode' | translate }}</span>
-    <button (click)="themeService.toggleMode()" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ring-2 ring-offset-2 ring-offset-surface" [class.bg-primary-accent]="mode() === 'dark'" [class.bg-gray-400]="mode() === 'light'">
+    <label for="theme-toggle" class="text-text-secondary font-medium">{{ 'themeCustomizer.lightMode' | translate }}</label>
+    <button id="theme-toggle" role="switch" [attr.aria-checked]="mode() === 'dark'" (click)="themeService.toggleMode()" class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none ring-2 ring-offset-2 ring-offset-surface" [class.bg-primary-accent]="mode() === 'dark'" [class.bg-gray-400]="mode() === 'light'">
+      <span class="sr-only">Toggle dark mode</span>
       <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform" [class.translate-x-6]="mode() === 'dark'" [class.translate-x-1]="mode() === 'light'"></span>
     </button>
-    <span class="text-text-secondary font-medium">{{ 'themeCustomizer.darkMode' | translate }}</span>
+    <label for="theme-toggle" class="text-text-secondary font-medium">{{ 'themeCustomizer.darkMode' | translate }}</label>
   </div>
 
   <div class="bg-surface border border-border-primary rounded-2xl p-6 mb-8 shadow-lg dark:shadow-none">

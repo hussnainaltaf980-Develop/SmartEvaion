@@ -1,44 +1,73 @@
+
+
 <div class="flex h-screen bg-bg-primary text-text-primary">
   <!-- Sidebar -->
   <aside 
     class="flex flex-col bg-surface/30 backdrop-blur-sm border-r border-border-primary transition-all duration-300 ease-in-out"
     [class.w-64]="isSidebarOpen()"
-    [class.w-20]="!isSidebarOpen()">
+    [class.w-20]="!isSidebarOpen()"
+    [attr.aria-expanded]="isSidebarOpen()"
+    aria-label="Main Navigation">
     
     <!-- Logo and Header -->
     <div class="flex items-center gap-2 px-4 h-20 border-b border-border-primary shrink-0" [class.justify-between]="isSidebarOpen()" [class.justify-center]="!isSidebarOpen()">
-        <a routerLink="/landing" class="flex items-center gap-2 overflow-hidden" [class.max-w-0]="!isSidebarOpen()" [class.max-w-full]="isSidebarOpen()">
-            <svg class="w-8 h-8 shrink-0" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <a routerLink="/landing" class="flex items-center gap-2 overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-accent rounded-md p-1" [class.max-w-0]="!isSidebarOpen()" [class.max-w-full]="isSidebarOpen()" aria-label="Go to home">
+            <svg class="w-8 h-8 shrink-0" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Evalion Vertex Logo">
                 <defs><linearGradient id="logo-grad-primary" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--color-primary-accent)" /><stop offset="100%" stop-color="var(--color-secondary-accent)" /></linearGradient><linearGradient id="logo-grad-secondary" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="var(--color-secondary-accent)" /><stop offset="100%" stop-color="#FFFFFF" /></linearGradient></defs>
                 <path d="M4 12 L24 44 L16 44 L4 20 Z" fill="url(#logo-grad-primary)" /><path d="M44 12 L24 44 L32 44 L44 20 Z" fill="url(#logo-grad-secondary)" fill-opacity="0.8" /><path d="M12 4 L36 4 L24 16 Z" fill="white" />
             </svg>
             <span class="font-bold text-xl whitespace-nowrap" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()" [class.transition-opacity]="isSidebarOpen()">Evalion<span class="text-primary-accent">Vertex</span></span>
         </a>
-        <button (click)="toggleSidebar()" class="p-2 rounded-full hover:bg-surface transition-colors">
+        <button (click)="toggleSidebar()" class="p-2 rounded-full hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary-accent" [attr.aria-label]="isSidebarOpen() ? 'Collapse Sidebar' : 'Expand Sidebar'">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-grow p-4 space-y-2">
-      <button (click)="changeView('overview')" [class.bg-primary-accent]="currentView() === 'overview'" [class.text-bg-primary]="currentView() === 'overview'" [class.hover:bg-surface]="currentView() !== 'overview'" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+    <nav class="flex-grow p-4 space-y-2" role="navigation">
+      <button (click)="changeView('overview')" 
+              [class.bg-primary-accent]="currentView() === 'overview'" 
+              [class.text-bg-primary]="currentView() === 'overview'" 
+              [class.hover:bg-surface]="currentView() !== 'overview'" 
+              [attr.aria-current]="currentView() === 'overview' ? 'page' : null"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 focus:ring-offset-surface">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
         <span class="transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">Overview</span>
       </button>
-       <button (click)="changeView('sessions')" [class.bg-primary-accent]="currentView() === 'sessions'" [class.text-bg-primary]="currentView() === 'sessions'" [class.hover:bg-surface]="currentView() !== 'sessions'" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+       <button (click)="changeView('sessions')" 
+              [class.bg-primary-accent]="currentView() === 'sessions'" 
+              [class.text-bg-primary]="currentView() === 'sessions'" 
+              [class.hover:bg-surface]="currentView() !== 'sessions'" 
+              [attr.aria-current]="currentView() === 'sessions' ? 'page' : null"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 focus:ring-offset-surface">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         <span class="transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">My Sessions</span>
       </button>
-      <button (click)="changeView('codingArena')" [class.bg-primary-accent]="currentView() === 'codingArena'" [class.text-bg-primary]="currentView() === 'codingArena'" [class.hover:bg-surface]="currentView() !== 'codingArena'" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16" /></svg>
+      <button (click)="changeView('codingArena')" 
+              [class.bg-primary-accent]="currentView() === 'codingArena'" 
+              [class.text-bg-primary]="currentView() === 'codingArena'" 
+              [class.hover:bg-surface]="currentView() !== 'codingArena'" 
+              [attr.aria-current]="currentView() === 'codingArena' ? 'page' : null"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 focus:ring-offset-surface">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16" /></svg>
         <span class="transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">Coding Arena</span>
       </button>
-      <button (click)="changeView('profile')" [class.bg-primary-accent]="currentView() === 'profile'" [class.text-bg-primary]="currentView() === 'profile'" [class.hover:bg-surface]="currentView() !== 'profile'" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+      <button (click)="changeView('profile')" 
+              [class.bg-primary-accent]="currentView() === 'profile'" 
+              [class.text-bg-primary]="currentView() === 'profile'" 
+              [class.hover:bg-surface]="currentView() !== 'profile'" 
+              [attr.aria-current]="currentView() === 'profile' ? 'page' : null"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 focus:ring-offset-surface">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
         <span class="transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">Profile</span>
       </button>
-      <button (click)="changeView('settings')" [class.bg-primary-accent]="currentView() === 'settings'" [class.text-bg-primary]="currentView() === 'settings'" [class.hover:bg-surface]="currentView() !== 'settings'" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+      <button (click)="changeView('settings')" 
+              [class.bg-primary-accent]="currentView() === 'settings'" 
+              [class.text-bg-primary]="currentView() === 'settings'" 
+              [class.hover:bg-surface]="currentView() !== 'settings'" 
+              [attr.aria-current]="currentView() === 'settings' ? 'page' : null"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-accent focus:ring-offset-2 focus:ring-offset-surface">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
         <span class="transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">Settings</span>
       </button>
     </nav>
@@ -52,15 +81,15 @@
           <p class="text-sm text-text-muted whitespace-nowrap truncate transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">Candidate</p>
         </div>
       </div>
-      <button (click)="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 mt-2 hover:bg-red-900/50 text-red-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+      <button (click)="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all duration-200 mt-2 hover:bg-red-900/50 text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-surface" aria-label="Log out of your account">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
         <span class="transition-opacity" [class.opacity-0]="!isSidebarOpen()" [class.opacity-100]="isSidebarOpen()">{{ 'common.logout' | translate }}</span>
       </button>
     </div>
   </aside>
 
   <!-- Main Content -->
-  <main class="flex-grow h-screen overflow-y-auto custom-scrollbar">
+  <main role="main" tabindex="-1" class="flex-grow h-screen overflow-y-auto custom-scrollbar">
     <div class="p-4 sm:p-6 lg:p-8">
       @switch (currentView()) {
         @case ('overview') {

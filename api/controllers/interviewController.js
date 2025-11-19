@@ -1,4 +1,4 @@
-const InterviewTemplate = require('../models/interviewTemplate');
+const InterviewTemplate = require('../models/interviewTemplate.js');
 
 exports.getAllTemplates = async (req, res) => {
     try {

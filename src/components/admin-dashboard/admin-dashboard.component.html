@@ -1,0 +1,123 @@
+
+
+<div class="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+  <!-- Header -->
+  <header class="bg-surface/30 backdrop-blur-sm border-b border-border-primary sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <a routerLink="/landing" class="flex items-center gap-3 group" aria-label="Go to Evalion Vertex home">
+        <div class="w-9 h-9 transition-transform duration-300 ease-in-out group-hover:scale-110 group-hover:rotate-6">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logo-grad-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--color-primary-accent)"></stop>
+                <stop offset="100%" stop-color="var(--color-secondary-accent)"></stop>
+              </linearGradient>
+              <linearGradient id="logo-grad-secondary" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="var(--color-secondary-accent)"></stop>
+                <stop offset="100%" stop-color="#FFFFFF"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M4 12 L24 44 L16 44 L4 20 Z" fill="url(#logo-grad-primary)"></path>
+            <path d="M44 12 L24 44 L32 44 L44 20 Z" fill="url(#logo-grad-secondary)" fill-opacity="0.8"></path>
+            <path d="M12 4 L36 4 L24 16 Z" fill="white"></path>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold font-['Poppins'] tracking-wider">
+          <span class="text-text-primary">Admin</span><span class="text-primary-accent">Portal</span>
+        </h1>
+      </a>
+      <div class="flex items-center gap-4">
+        <div class="text-right hidden sm:block">
+            <p class="font-semibold text-sm">{{ currentUser()?.name }}</p>
+            <p class="text-xs text-text-muted uppercase">{{ currentUser()?.role }}</p>
+        </div>
+        <button (click)="logout()" class="bg-surface hover:bg-red-900/30 border border-border-primary hover:border-red-500/50 text-text-secondary hover:text-red-300 px-4 py-2 rounded-lg transition-all text-sm font-semibold">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-text-primary">User Management</h2>
+      <p class="text-text-secondary mt-2">Manage user access and roles for the platform.</p>
+    </div>
+
+    <div class="bg-surface/50 border border-border-primary rounded-2xl overflow-hidden shadow-xl">
+      
+      @if (isLoading()) {
+        <div class="p-12 flex justify-center">
+           <div class="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      } @else if (users().length === 0) {
+        <app-empty-state 
+          title="No Users Found" 
+          message="There are currently no registered users in the system."
+          icon='<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>'
+        ></app-empty-state>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-surface/80 border-b border-border-primary text-text-muted text-sm uppercase tracking-wider">
+                <th scope="col" class="p-6 font-semibold">User</th>
+                <th scope="col" class="p-6 font-semibold">Role</th>
+                <th scope="col" class="p-6 font-semibold">Status</th>
+                <th scope="col" class="p-6 font-semibold">Company</th>
+                <th scope="col" class="p-6 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border-primary/50">
+              @for (user of users(); track user.id) {
+                <tr class="hover:bg-surface transition-colors">
+                  <td class="p-6">
+                    <div class="flex items-center gap-3">
+                      <img [src]="user.photoUrl || 'https://picsum.photos/id/64/200/200'" alt="" class="w-10 h-10 rounded-full object-cover border border-border-primary">
+                      <div>
+                        <p class="font-bold text-text-primary">{{ user.name }}</p>
+                        <p class="text-sm text-text-muted">{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-6">
+                    <select (change)="updateRole(user, $event)" [value]="user.role" [disabled]="user.id === currentUser()?.id"
+                            [attr.aria-label]="'Change role for ' + user.name"
+                            class="bg-input-bg border border-input-border text-text-secondary text-sm rounded-md px-2 py-1 focus:ring-2 focus:ring-primary-accent outline-none">
+                      <option value="candidate">Candidate</option>
+                      <option value="content-manager">Content Manager</option>
+                      <option value="super-admin">Super Admin</option>
+                    </select>
+                  </td>
+                  <td class="p-6">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
+                          [class.bg-emerald-500/20]="!user.disabled" [class.text-emerald-400]="!user.disabled"
+                          [class.bg-red-500/20]="user.disabled" [class.text-red-400]="user.disabled">
+                      {{ user.disabled ? 'Disabled' : 'Active' }}
+                    </span>
+                  </td>
+                  <td class="p-6 text-text-secondary">
+                     {{ user.companyName || user.company || 'N/A' }}
+                  </td>
+                  <td class="p-6 text-right">
+                    @if (user.id !== currentUser()?.id) {
+                      <button (click)="toggleStatus(user)"
+                              [attr.aria-label]="(user.disabled ? 'Enable' : 'Disable') + ' user ' + user.name"
+                              class="text-sm font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-primary-accent rounded-md px-2 py-1"
+                              [class.text-red-400]="!user.disabled" [class.text-emerald-400]="user.disabled">
+                        {{ user.disabled ? 'Enable' : 'Disable' }}
+                      </button>
+                    } @else {
+                      <span class="text-xs text-text-muted italic">Current User</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </main>
+</div>

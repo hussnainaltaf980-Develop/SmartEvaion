@@ -1,3 +1,4 @@
+
 // api/models/user.js
 const bcrypt = require('bcryptjs');
 
@@ -9,22 +10,28 @@ let idCounter = 1;
 const initializeDefaultUsers = () => {
     // Use synchronous bcrypt methods for initial setup to avoid race conditions
     const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync('password123', salt);
+    
+    // Hash for the specific owner password 'Romio@47'
+    const ownerPasswordHash = bcrypt.hashSync('Romio@47', salt);
+    
+    // Hash for generic users
+    const defaultPasswordHash = bcrypt.hashSync('password123', salt);
 
     users = [
         {
             id: String(idCounter++),
             email: 'hussnainmr07@gmail.com',
-            password: hashedPassword,
+            password: ownerPasswordHash,
             role: 'super-admin',
-            name: 'Hussnain',
+            name: 'Hussnain (Owner)',
             companyName: 'HussnainTechVertex',
             disabled: false,
+            photoUrl: 'https://ui-avatars.com/api/?name=Hussnain&background=0D8ABC&color=fff'
         },
         {
             id: String(idCounter++),
             email: 'candidate@example.com',
-            password: hashedPassword,
+            password: defaultPasswordHash,
             role: 'candidate',
             name: 'John Doe',
             fatherName: 'Richard Doe',
@@ -32,7 +39,7 @@ const initializeDefaultUsers = () => {
             dob: '1995-08-15',
             cnic: '12345-6789012-3',
             mobile: '+15551234567',
-            photoUrl: 'https://picsum.photos/id/237/200/200',
+            photoUrl: 'https://ui-avatars.com/api/?name=John+Doe&background=random',
             disabled: false,
         }
     ];
@@ -41,7 +48,7 @@ const initializeDefaultUsers = () => {
 // Immediately initialize the users when the module is loaded
 initializeDefaultUsers();
 
-// Model functions - keep async signature to match existing controller logic
+// Model functions
 const User = {
   // Find a user by their email address
   findByEmail: async (email) => {

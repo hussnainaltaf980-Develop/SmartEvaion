@@ -14,7 +14,7 @@ import { NotificationService } from '../../../services/notification.service';
 })
 export class CandidateProfileComponent implements OnInit {
   authService = inject(AuthService);
-  fb = inject(FormBuilder);
+  private fb: FormBuilder = inject(FormBuilder);
   notificationService = inject(NotificationService);
 
   isSubmitting = signal(false);

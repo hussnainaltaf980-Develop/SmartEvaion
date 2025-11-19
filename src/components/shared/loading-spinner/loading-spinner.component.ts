@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from '../../../services/loading.service';
@@ -14,4 +15,5 @@ import { TranslatePipe } from '../../../pipes/translate.pipe';
 export class LoadingSpinnerComponent {
   loadingService = inject(LoadingService);
   isLoading = this.loadingService.isLoading;
+  message = this.loadingService.message;
 }

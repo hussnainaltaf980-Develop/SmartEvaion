@@ -1,3 +1,4 @@
+
 import { Injectable, signal, effect, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
@@ -42,7 +43,8 @@ export class TranslationService {
 
   private async loadTranslationsForLanguage(langCode: string): Promise<void> {
      try {
-      const path = `/assets/i18n/${langCode}.json`; // Updated path
+      // Use absolute path relative to root to ensure it loads from any route depth
+      const path = `/src/assets/i18n/${langCode}.json`; 
       const translationData = await lastValueFrom(this.http.get<object>(path));
       const flattened = flattenObject(translationData);
       this.translationsSignal.set(flattened);

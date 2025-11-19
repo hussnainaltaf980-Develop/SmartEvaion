@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -20,18 +21,18 @@ export class LoginComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
-  private router: Router = inject(Router);
   private translationService = inject(TranslationService);
 
   loginState = signal<'login' | 'forgot-password' | 'reset-sent'>('login');
   isSubmitting = signal(false);
-  isResettingPassword = signal(false); // New signal for reset password loading
+  isResettingPassword = signal(false);
   loginError = signal<string | null>(null);
 
+  // Strictly empty initial state for production
   loginForm = this.fb.group({
-    email: ['candidate@example.com', [Validators.required, Validators.email]],
-    password: ['password123', Validators.required],
-    rememberMe: [true]
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+    rememberMe: [false]
   });
 
   forgotPasswordForm = this.fb.group({
@@ -40,15 +41,9 @@ export class LoginComponent {
 
   activeRole = signal<UserRole | 'admin'>('candidate');
   showPassword = signal(false);
-  currentYear = new Date().getFullYear();
 
   setActiveRole(role: UserRole | 'admin'): void {
     this.activeRole.set(role);
-    if (role === 'admin') {
-        this.loginForm.patchValue({ email: 'hussnainmr07@gmail.com', password: 'password123' });
-    } else {
-        this.loginForm.patchValue({ email: 'candidate@example.com', password: 'password123' });
-    }
   }
 
   togglePasswordVisibility(): void {
@@ -65,29 +60,21 @@ export class LoginComponent {
       return;
     }
     
-    this.isResettingPassword.set(true); // Start loading
+    this.isResettingPassword.set(true);
 
-    // Simulate an API call for password reset
+    // Simulate API call for reset
     setTimeout(() => {
-      // In a real app, you'd call a service here:
-      // this.authService.requestPasswordReset(this.forgotPasswordForm.value.email!).subscribe({
-      //   next: () => {
-      //     this.loginState.set('reset-sent');
-      //   },
-      //   error: (err) => {
-      //     this.notificationService.showError(err.error?.message || 'Failed to send reset link.');
-      //   },
-      //   complete: () => {
-      //     this.isResettingPassword.set(false);
-      //   }
-      // });
-      this.isResettingPassword.set(false); // Stop loading
-      this.loginState.set('reset-sent'); // Transition to success state
-    }, 1500); // Simulate network delay
+      this.isResettingPassword.set(false);
+      this.loginState.set('reset-sent');
+    }, 1500);
   }
 
   backToLogin(): void {
     this.loginState.set('login');
+  }
+
+  socialLogin(provider: string): void {
+    this.notificationService.showInfo(`${provider} login is for demonstration purposes only.`);
   }
 
   onSubmit(): void {
@@ -102,7 +89,7 @@ export class LoginComponent {
 
     this.authService.login(email!, password!, !!rememberMe).subscribe({
       next: (response) => {
-        // On success, the auth service handles navigation and shows success notification
+        // Success logic handled in AuthService (redirects)
       },
       error: (err) => {
         this.isSubmitting.set(false);

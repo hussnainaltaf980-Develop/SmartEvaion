@@ -1,4 +1,4 @@
-const InterviewSession = require('../models/interviewSession');
+const InterviewSession = require('../models/interviewSession.js');
 
 exports.getAllSessions = async (req, res) => {
     try {

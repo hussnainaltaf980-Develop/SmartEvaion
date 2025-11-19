@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -5,11 +6,12 @@ import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { InterviewService, InterviewTemplate } from '../../../services/interview.service';
 import { AuthService } from '../../../services/auth.service';
 import { NotificationService } from '../../../services/notification.service';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-candidate-sessions',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, FormsModule, TitleCasePipe],
+  imports: [CommonModule, TranslatePipe, FormsModule, TitleCasePipe, EmptyStateComponent],
   templateUrl: './candidate-sessions.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

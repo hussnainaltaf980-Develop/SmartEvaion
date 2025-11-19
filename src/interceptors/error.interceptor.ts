@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpContextToken } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError, retry, timer } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
@@ -7,6 +7,13 @@ import { TranslationService } from '../services/translation.service';
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
+
+/**
+ * Context token to suppress the global error notification for specific requests.
+ * Services can set this to true if they have a fallback mechanism (e.g., mock data).
+ */
+export const SUPPRESS_ERROR_NOTIFICATION = new HttpContextToken<boolean>(() => false);
+
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
@@ -29,6 +36,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
     }),
     catchError((error: HttpErrorResponse) => {
+      // If the request context has suppression enabled, just re-throw without showing a notification.
+      if (req.context.get(SUPPRESS_ERROR_NOTIFICATION)) {
+        return throwError(() => error);
+      }
+      
       let errorMessage: string;
       const errorId = `HTTP-${Date.now().toString(36)}`;
 

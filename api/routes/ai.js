@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const aiController = require('../controllers/aiController');
+const aiController = require('../controllers/aiController.js');
 
 // All routes are protected by the auth middleware applied in server.js
 

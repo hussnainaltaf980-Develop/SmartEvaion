@@ -160,15 +160,15 @@
     "companyLogoRequired": "Company logo is required."
   },
   "chatbot": {
-    "title": "AI Assistant",
+    "title": "Evalion Assistance",
     "standardModeTooltip": "Standard mode for balanced responses.",
     "lowLatencyModeTooltip": "Low-latency mode for quicker, game-like responses.",
     "standardMode": "Std",
     "lowLatencyMode": "Fast",
     "sources": "Sources",
     "inputPlaceholder": "Ask me anything...",
-    "guestMessage": "Welcome! Please log in to start a personalized chat session and save your history.",
-    "welcomeMessage": "Hello! I'm your AI assistant. How can I help you prepare for your interview today?",
+    "guestMessage": "Welcome to Evalion Vertex! I am your AI Assistant. Log in to unlock my full potential.",
+    "welcomeMessage": "Hello! I am Evalion Assistance, your expert guide to this platform, proudly developed by HussnainTechVertex Pvt Ltd. How can I help you excel today?",
     "inputTooLong": "Your message is too long. Please keep it under 4000 characters.",
     "harmfulInput": "Your message seems to contain a prompt injection attempt. Please rephrase your query."
   },

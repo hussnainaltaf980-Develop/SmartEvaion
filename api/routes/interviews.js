@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const interviewController = require('../controllers/interviewController');
+const interviewController = require('../controllers/interviewController.js');
 
 // The base path is already protected by middleware in server.js
 
