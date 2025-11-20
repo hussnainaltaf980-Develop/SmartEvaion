@@ -1,3 +1,4 @@
+
 <div class="h-[calc(100vh-4rem)] flex flex-col animate-fade-in text-text-primary">
   @if(showConfetti()) {
     <app-confetti></app-confetti>
@@ -66,9 +67,10 @@
                 @case ('description') {
                     @if(selectedProblem(); as problem) {
                         <div class="prose prose-invert prose-sm text-text-secondary max-w-none">
-                            <p [innerHTML]="problem.description.replace(/\\n/g, '<br>')"></p>
+                             <!-- Render Markdown Description -->
+                             <div [innerHTML]="problem.description | markdown"></div>
                             
-                            <h3 class="text-text-primary">Examples:</h3>
+                            <h3 class="text-text-primary mt-4">Examples:</h3>
                             @for(example of problem.examples; track $index) {
                                 <div class="bg-surface p-3 rounded-lg border border-border-primary mb-3">
                                     <p><strong>Input:</strong> <code>{{ example.input }}</code></p>
@@ -100,43 +102,38 @@
                         <div class="space-y-3">
                             @if(result.success) {
                                 <div class="p-4 bg-green-500/20 border border-green-400/30 rounded-lg text-green-300">
-                                    <h3 class="font-bold">All test cases passed!</h3>
-                                    <p>Great job! You have successfully solved the problem.</p>
+                                    <h3 class="font-bold flex items-center gap-2">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM3.857 9.309a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                                      All Passed!
+                                    </h3>
                                 </div>
                             } @else {
                                 <div class="p-4 bg-red-500/20 border border-red-400/30 rounded-lg text-red-300">
-                                    <h3 class="font-bold">Some test cases failed.</h3>
-                                    <p>{{ result.message }}</p>
+                                    <h3 class="font-bold">Failed</h3>
+                                    <p class="text-sm">{{ result.message }}</p>
                                 </div>
                             }
 
                             @for(caseResult of result.results; track caseResult.testCaseIndex) {
-                                <div class="p-3 bg-surface rounded-lg border" [class.border-green-400/40]="caseResult.passed" [class.border-red-400/40]="!caseResult.passed">
-                                    <div class="flex items-center justify-between">
-                                        <h4 class="font-semibold" [class.text-green-300]="caseResult.passed" [class.text-red-300]="!caseResult.passed">
-                                            Test Case {{ caseResult.testCaseIndex + 1 }}: {{ caseResult.passed ? 'Passed' : 'Failed' }}
-                                        </h4>
+                                <div class="bg-black/30 rounded-lg border overflow-hidden" 
+                                     [class.border-green-500/40]="caseResult.passed" 
+                                     [class.border-red-500/40]="!caseResult.passed">
+                                    <div class="px-3 py-2 bg-surface/50 border-b border-white/5 flex items-center justify-between">
+                                        <span class="font-semibold text-sm text-white">Test Case {{ caseResult.testCaseIndex + 1 }}</span>
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded"
+                                              [class.bg-green-500/20]="caseResult.passed" [class.text-green-300]="caseResult.passed"
+                                              [class.bg-red-500/20]="!caseResult.passed" [class.text-red-300]="!caseResult.passed">
+                                            {{ caseResult.passed ? 'PASSED' : 'FAILED' }}
+                                        </span>
                                     </div>
-                                    <div class="mt-2 text-xs space-y-1 font-mono text-text-muted">
-                                        <p><span class="font-semibold text-text-secondary">Input:</span> {{ caseResult.input }}</p>
-                                        <p><span class="font-semibold text-text-secondary">Expected:</span> {{ caseResult.expected }}</p>
-                                        <p><span class="font-semibold text-text-secondary">Got:</span> <span [class.text-green-400]="caseResult.passed" [class.text-red-400]="!caseResult.passed">{{ caseResult.actual }}</span></p>
-                                        @if(caseResult.error) {
-                                            <p><span class="font-semibold text-text-secondary">Error:</span> <span class="text-red-400">{{ caseResult.error }}</span></p>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    } @else {
-                        <div class="text-center text-text-muted h-full flex items-center justify-center">
-                            <p>Run your code to see the test results here.</p>
-                        </div>
-                    }
-                }
-            }
-        </div>
-    </div>
-
-  </div>
-</div>
+                                    <div class="p-3 space-y-3 text-xs font-mono">
+                                        <div>
+                                            <span class="text-text-muted block mb-1 uppercase tracking-wider text-[10px]">Input</span>
+                                            <pre class="bg-black/40 p-2 rounded text-blue-200 overflow-x-auto">{{ formatValue(caseResult.input) }}</pre>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <span class="text-text-muted block mb-1 uppercase tracking-wider text-[10px]">Expected</span>
+                                                <pre class="bg-black/40 p-2 rounded text-green-300 overflow-x-auto">{{ formatValue(caseResult.expected) }}</pre>
+                                            </div>
+                                            

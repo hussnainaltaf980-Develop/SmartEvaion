@@ -1,3 +1,4 @@
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,13 +20,14 @@ import { CodeEditorComponent } from './code-editor/code-editor.component';
 import { ConfettiComponent } from '../shared/confetti.component';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 
 type ArenaView = 'description' | 'testCases';
 
 @Component({
   selector: 'app-coding-arena',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, CodeEditorComponent, ConfettiComponent],
+  imports: [CommonModule, TranslatePipe, CodeEditorComponent, ConfettiComponent, MarkdownPipe],
   templateUrl: './coding-arena.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -98,6 +100,27 @@ export class CodingArenaComponent implements OnInit, OnDestroy {
 
   updateCode(code: string): void {
     this.userCode.set(code);
+  }
+
+  formatValue(value: any): string {
+    try {
+        // If it's already a string and not 'Run Error', try to parse it to see if it's valid JSON
+        // If it parses to an object/array, we stringify with indentation.
+        // If it's just a string, we return it.
+        if (typeof value === 'string') {
+            if (value === 'Runtime Error' || value.startsWith('Compilation Error')) return value;
+            
+            try {
+                const parsed = JSON.parse(value);
+                return JSON.stringify(parsed, null, 2);
+            } catch {
+                return value;
+            }
+        }
+        return JSON.stringify(value, null, 2);
+    } catch {
+        return String(value);
+    }
   }
 
   async handleSubmit(): Promise<void> {

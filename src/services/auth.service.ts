@@ -2,8 +2,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { tap, catchError, finalize } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { tap, finalize } from 'rxjs/operators';
 import { NotificationService } from './notification.service';
 import { LoadingService } from './loading.service';
 
@@ -44,7 +44,6 @@ interface LoginRequest {
   email: string;
   password: string;
 }
-
 
 @Injectable({
   providedIn: 'root'
@@ -113,10 +112,6 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.authApiUrl}/login`, loginPayload).pipe(
       tap(response => {
         this.handleLoginSuccess(response, rememberMe);
-      }),
-      catchError(err => {
-        // Strictly use backend response errors.
-        return throwError(() => err);
       }),
       finalize(() => {
         this.loadingService.hide();

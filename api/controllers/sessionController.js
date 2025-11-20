@@ -3,7 +3,6 @@ const InterviewSession = require('../models/interviewSession.js');
 exports.getAllSessions = async (req, res) => {
     try {
         const allSessions = await InterviewSession.findAll();
-        // Filter sessions for non-admin users
         if (req.user.role === 'candidate') {
             const userSessions = allSessions.filter(s => s.userId === req.user.id);
             return res.json(userSessions);

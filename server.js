@@ -7,6 +7,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 
+// Explicit .js extensions to prevent module resolution errors
 const authRoutes = require('./api/routes/auth.js');
 const userRoutes = require('./api/routes/users.js');
 const interviewRoutes = require('./api/routes/interviews.js');
@@ -26,7 +27,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health Check Endpoint (moved to top for early verification)
+// Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'UP', timestamp: new Date().toISOString() });
 });
@@ -38,6 +39,11 @@ app.use('/api/interviews', authMiddleware, interviewRoutes);
 app.use('/api/sessions', authMiddleware, sessionRoutes);
 app.use('/api/ai', authMiddleware, aiRoutes);
 app.use('/api/coding', authMiddleware, codingRoutes);
+
+// Catch-all for API routes that don't exist
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ success: false, message: `API endpoint not found: ${req.method} ${req.originalUrl}` });
+});
 
 // --- WebSocket Server Logic ---
 const clients = new Map(); // Map to store userId -> WebSocket connection
@@ -57,7 +63,6 @@ wss.on('connection', (ws, req) => {
     console.log(`WebSocket client connected: user ${userId}`);
 
     ws.on('message', message => {
-        // Handle incoming messages if needed in the future
         console.log(`Received message from user ${userId}: ${message}`);
     });
 
@@ -76,15 +81,12 @@ wss.on('connection', (ws, req) => {
   }
 });
 
-// Make the WebSocket clients map available to other modules (e.g., controllers)
 app.set('webSocketClients', clients);
 
-
 // --- Static File Serving ---
-// Serve static files from the ROOT directory to allow access to index.tsx, src/, and node_modules (if needed via importmaps)
 app.use(express.static(__dirname));
 
-// All other GET requests not handled before will return the Angular app (Root index.html)
+// All other GET requests return the Angular app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -98,8 +100,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-// --- Server Startup ---
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

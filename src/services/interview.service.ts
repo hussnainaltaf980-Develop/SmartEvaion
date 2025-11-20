@@ -1,12 +1,12 @@
 
-import { Injectable, signal, effect, computed, inject, OnDestroy } from '@angular/core';
-import { HttpClient, HttpContext } from '@angular/common/http';
-import { tap, catchError, of, lastValueFrom, EMPTY, Subscription, finalize } from 'rxjs';
+
+import { Injectable, signal, effect, inject, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { tap, lastValueFrom, Subscription, finalize, catchError, of } from 'rxjs';
 import { OverallEvaluation, EvaluationResult } from './gemini.service';
 import { User, AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
 import { WebSocketService } from './websocket.service';
-import { SUPPRESS_ERROR_NOTIFICATION } from '../interceptors/error.interceptor';
 import { LoadingService } from './loading.service';
 
 export type InterviewTemplateType = 'technical' | 'behavioral' | 'situational' | 'general';
@@ -81,12 +81,10 @@ export class InterviewService implements OnDestroy {
   isFocusMode = signal<boolean>(false);
 
   constructor() {
-    // Initial fetch
-    this.fetchInterviewTemplates();
-    this.fetchInterviewSessions();
-
     effect(() => {
         if (this.authService.isAuthenticated()) {
+            this.fetchInterviewTemplates();
+            this.fetchInterviewSessions();
             this.webSocketSub?.unsubscribe();
             // The WebSocketService is connected from AppComponent, so we just subscribe.
             this.webSocketSub = this.webSocketService.messages$.subscribe(message => {
@@ -95,6 +93,8 @@ export class InterviewService implements OnDestroy {
         } else {
             this.webSocketSub?.unsubscribe();
             this.webSocketSub = undefined;
+            this.interviewTemplates.set([]);
+            this.sessions.set([]);
         }
     });
   }
@@ -146,18 +146,13 @@ export class InterviewService implements OnDestroy {
   }
 
   fetchInterviewTemplates(): void {
-    // Only show loading if we don't have templates yet
-    if(this.interviewTemplates().length === 0) {
-        // Don't block UI globally for this background fetch, or use a very subtle indicator if desired
-        // For now, we skip global loading to avoid flickering on dashboard load
-    }
-    
     this.http.get<InterviewTemplate[]>(this.interviewsApiUrl).pipe(
       tap(templates => this.interviewTemplates.set(templates)),
-      catchError(error => {
-        console.error('Failed to fetch interview templates:', error);
-        this.interviewTemplates.set([]);
-        return of([]); 
+      catchError(err => {
+        console.error('Failed to fetch interview templates:', err);
+        // The error interceptor will show a notification.
+        // We catch it here to prevent an unhandled error in the subscription and stop the observable chain.
+        return of([]);
       })
     ).subscribe();
   }
@@ -177,12 +172,10 @@ export class InterviewService implements OnDestroy {
           this.notificationService.showSuccess('Interview template created successfully!');
         }
       }),
-      catchError(error => {
-        console.error('Error creating template:', error);
-        return EMPTY; 
-      }),
       finalize(() => this.loadingService.hide())
-    ).subscribe();
+    ).subscribe({
+      error: (err) => console.error('Failed to add interview template:', err)
+    });
   }
 
   deleteInterviewTemplate(templateId: string): void {
@@ -197,21 +190,18 @@ export class InterviewService implements OnDestroy {
             }
         }
       }),
-      catchError(error => {
-        console.error('Error deleting template:', error);
-        return of(null); 
-      }),
       finalize(() => this.loadingService.hide())
-    ).subscribe();
+    ).subscribe({
+      error: (err) => console.error('Failed to delete interview template:', err)
+    });
   }
 
   fetchInterviewSessions(): void {
     this.http.get<InterviewSession[]>(this.sessionsApiUrl).pipe(
       tap(sessions => this.sessions.set(sessions)),
-      catchError(error => {
-        console.error('Failed to fetch interview sessions:', error);
-        this.sessions.set([]);
-        return of([]); 
+      catchError(err => {
+        console.error('Failed to fetch interview sessions:', err);
+        return of([]);
       })
     ).subscribe();
   }
@@ -247,7 +237,7 @@ export class InterviewService implements OnDestroy {
       this.isFocusMode.set(true);
       return createdSession.id;
     } catch (error: any) {
-      console.error('Error starting session:', error);
+      console.error('Backend error starting session', error);
       return null;
     } finally {
         this.loadingService.hide();
@@ -256,15 +246,8 @@ export class InterviewService implements OnDestroy {
 
   async completeInterviewSession(sessionId: string, results: Omit<InterviewResult, 'answeredOn'>[], overallEvaluation: OverallEvaluation): Promise<void> {
     this.loadingService.show('Finalizing session results...');
-    const sessionToUpdate = this.sessions().find(s => s.id === sessionId);
-    if (!sessionToUpdate) {
-        this.notificationService.showError("Session not found for completion.");
-        this.loadingService.hide();
-        return;
-    }
-
+    
     const finalResults: InterviewResult[] = results.map(r => ({ ...r, answeredOn: new Date().toISOString() }));
-
     const completionPayload = {
         results: finalResults,
         overallFeedback: overallEvaluation.overallFeedback,
@@ -274,17 +257,19 @@ export class InterviewService implements OnDestroy {
 
     try {
         const updatedSessionResponse = await lastValueFrom(
-            this.http.put<{success: boolean; message: string; session: InterviewSession}>(`${this.sessionsApiUrl}/${sessionId}/complete`, completionPayload)
+            this.http.put<{success: boolean; message: string; session: InterviewSession}>(
+                `${this.sessionsApiUrl}/${sessionId}/complete`, 
+                completionPayload
+            )
         );
         this.sessions.update(sessions => sessions.map(s => s.id === sessionId ? updatedSessionResponse.session : s));
+    } catch (error: any) {
+        console.error('Backend error completing session', error);
+        this.notificationService.showError("Failed to save session results. Please try again.");
+    } finally {
         this.activeQuestions.set([]);
         this.activeTemplate.set(null);
         this.isFocusMode.set(false);
-        this.notificationService.showSuccess('Interview session completed and results saved!');
-    } catch (error: any) {
-        this.isFocusMode.set(false);
-        console.error('Error completing session:', error);
-    } finally {
         this.loadingService.hide();
     }
   }
@@ -300,8 +285,8 @@ export class InterviewService implements OnDestroy {
       ));
       this.notificationService.showSuccess(`Session status updated to ${newStatus}!`);
     } catch (error: any) {
-      console.error('Error updating session status:', error);
-      throw error;
+      console.error('Backend error updating status', error);
+      this.notificationService.showError('Failed to update session status.');
     } finally {
         this.loadingService.hide();
     }

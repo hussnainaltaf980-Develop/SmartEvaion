@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators, ValidatorFn } from '@angular/forms';
@@ -140,7 +139,6 @@ export class SignupComponent {
     const { confirmPassword, ...finalCommonData } = commonData;
     const { agreeToTerms, ...finalRoleData } = roleData;
     
-    // Admin-level registration creates a 'super-admin' via the 'company' flow for demo purposes here
     const finalRole = this.selectedRole() === 'candidate' ? 'candidate' : 'super-admin';
     
     const payload: Omit<User, 'id' | 'disabled'> = {

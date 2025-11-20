@@ -1,13 +1,9 @@
 const User = require('../models/user.js');
 const bcrypt = require('bcryptjs');
 
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll();
-    // Exclude passwords from the response
     const usersWithoutPasswords = users.map(u => {
       const { password, ...user } = u;
       return user;
@@ -18,9 +14,6 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// @desc    Create a new user
-// @route   POST /api/users
-// @access  Private/Admin
 exports.createUser = async (req, res) => {
   try {
      const { email, password, name, role } = req.body;
@@ -43,13 +36,8 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/users/:id
-// @access  Private
 exports.updateUserProfile = async (req, res) => {
   const { id } = req.params;
-  
-  // Ensure users can only update their own profile unless they are an admin
   if (req.user.id !== id && req.user.role !== 'super-admin' && req.user.role !== 'content-manager') {
     return res.status(403).json({ success: false, message: 'Not authorized to update this user' });
   }
@@ -66,9 +54,6 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Toggle user disabled status
-// @route   PUT /api/users/:id/status
-// @access  Private/Admin
 exports.toggleUserStatus = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -83,9 +68,6 @@ exports.toggleUserStatus = async (req, res) => {
   }
 };
 
-// @desc    Update user role
-// @route   PUT /api/users/:id/role
-// @access  Private/Admin
 exports.updateUserRole = async (req, res) => {
     try {
         const { newRole } = req.body;
