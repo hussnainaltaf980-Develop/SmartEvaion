@@ -1,10 +1,20 @@
-const { GoogleGenAI, Type, HarmCategory, HarmBlockThreshold } = require('@google/genai');
+const { GoogleGenAI, HarmCategory, HarmBlockThreshold } = require('@google/genai');
 const WebSocket = require('ws');
 
-if (!process.env.API_KEY) {
-  throw new Error('API_KEY environment variable not set');
-}
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const hasApiKey = Boolean(process.env.API_KEY);
+const ai = hasApiKey ? new GoogleGenAI({ apiKey: process.env.API_KEY }) : null;
+
+const ensureAiConfigured = (res) => {
+  if (ai) {
+    return true;
+  }
+
+  res.status(503).json({
+    success: false,
+    message: 'AI features are unavailable. Please configure the API_KEY environment variable.',
+  });
+  return false;
+};
 
 const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -45,6 +55,10 @@ Your core directive is to provide expert assistance, act as an interview coach, 
 `;
 
 exports.chat = async (req, res) => {
+  if (!ensureAiConfigured(res)) {
+    return;
+  }
+
   try {
     const { message, mode, useGoogleSearch } = req.body;
 
@@ -88,6 +102,10 @@ exports.chat = async (req, res) => {
 };
 
 exports.generateQuestions = async (req, res) => {
+  if (!ensureAiConfigured(res)) {
+    return;
+  }
+
   try {
     const { jobTitle, category, experience, count } = req.body;
     const prompt = `Generate ${count} interview questions for a ${experience}-level ${jobTitle} in the ${category} category. Return the questions as a JSON array of strings.`;
@@ -118,6 +136,10 @@ exports.transcribeAudio = async (req, res) => {
 
 
 exports.evaluateAnswer = async (req, res) => {
+    if (!ensureAiConfigured(res)) {
+      return;
+    }
+
     const clients = req.app.get('webSocketClients');
     const ws = clients.get(req.user.id);
 
